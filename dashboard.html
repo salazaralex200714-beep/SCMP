@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · S.C.M.P.</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/darkmode.css">
+</head>
+<body>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+
+      <div class="content fade-in">
+        <div class="flex-between" style="margin-bottom:20px;">
+          <div>
+            <h1 class="page-title">Buen día 👋</h1>
+            <p class="page-sub">Esto es lo que está pasando con los casos hoy.</p>
+          </div>
+          <a href="casos.html?nuevo=1" class="btn btn-accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Nuevo caso
+          </a>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin:-10px 0 16px;">
+          <button class="btn btn-ghost" id="btn-reporte-mensual">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M15 3v5h5"/></svg>
+            Reporte mensual (PDF)
+          </button>
+        </div>
+
+        <div class="kpi-grid" id="kpi-grid">
+          <!-- KPIs inyectados por dashboard.js -->
+        </div>
+
+        <div class="dash-grid">
+          <div class="card card-pad">
+            <div class="panel-title">Saldo pendiente por moneda (casos abiertos)</div>
+            <div id="saldos-moneda"></div>
+          </div>
+          <div class="card card-pad">
+            <div class="panel-title">Distribución por estado</div>
+            <div class="donut-wrap">
+              <div class="chart-canvas-wrap" style="height:auto;"><canvas id="estado-donut"></canvas></div>
+              <div class="donut-legend" id="donut-legend"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="card card-pad">
+            <div class="panel-title">Casos por campaña</div>
+            <div id="by-campaña"></div>
+          </div>
+          <div class="card card-pad">
+            <div class="panel-title" style="color:var(--red);">⚠ Casos estancados (5+ días sin actividad)</div>
+            <div id="estancados-panel"></div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+            <div class="card card-pad">
+              <div class="panel-title">Casos por zona</div>
+              <div id="by-zona"></div>
+            </div>
+            <div class="card card-pad">
+              <div class="panel-title">Casos por gerente de zona</div>
+              <div id="by-gerente"></div>
+            </div>
+          </div>
+          <div class="card card-pad">
+            <div class="panel-title">Casos creados este mes por agente</div>
+            <div id="by-mes"></div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="card card-pad">
+            <div class="panel-title">Casos por agente (total)</div>
+            <div id="by-agente"></div>
+          </div>
+          <div class="card card-pad">
+            <div class="panel-title">Actividad reciente</div>
+            <div class="activity-list" id="activity-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pdf.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

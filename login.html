@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingresar · S.C.M.P.</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/darkmode.css">
+</head>
+<body>
+
+  <div class="login-wrap">
+    <div class="login-side">
+      <div class="login-side-inner">
+        <div class="lg-mark">S</div>
+        <h1>Sistema de Control<br>de Malas Prácticas</h1>
+        <p>Registra, compara y da seguimiento a casos entre representantes y empresarias (EBA) con evidencias, línea de tiempo y auditoría completa, en un solo lugar.</p>
+        <div class="case-tags">
+          <span>Comparativa de versiones</span>
+          <span>Evidencias</span>
+          <span>Línea de tiempo</span>
+          <span>Auditoría</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-form-side">
+      <div class="login-form-box">
+        <h2>Iniciar sesión</h2>
+        <p class="sub">Ingresa tus credenciales para acceder al sistema.</p>
+
+        <form id="login-form" novalidate>
+          <div class="field field-required">
+            <label for="f-usuario">Usuario</label>
+            <input type="text" id="f-usuario" autocomplete="username" placeholder="Tu usuario, ej. acano">
+          </div>
+          <div class="field field-required">
+            <label for="f-password">Contraseña</label>
+            <div style="position:relative;">
+              <input type="password" id="f-password" autocomplete="current-password" placeholder="••••••••" style="padding-right:70px;">
+              <button type="button" id="toggle-pass" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:11.5px;font-weight:700;color:var(--text-400);">Mostrar</button>
+            </div>
+          </div>
+
+          <div id="login-error" style="display:none;background:var(--red-soft);color:var(--red);font-size:12.5px;padding:9px 12px;border-radius:8px;margin-bottom:14px;"></div>
+
+          <button type="submit" class="btn btn-accent btn-block" id="btn-submit">Ingresar</button>
+        </form>
+
+        <div style="text-align:center;margin-top:14px;">
+          <button type="button" id="btn-toggle-forgot" style="background:none;border:none;font-size:12px;color:var(--text-400);text-decoration:underline;cursor:pointer;">¿Olvidaste tu contraseña?</button>
+        </div>
+
+        <form id="forgot-step1-form" novalidate style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--paper-border);">
+          <p class="sub" style="margin-top:0;">Escribe tu usuario para ver tu pregunta de seguridad.</p>
+          <div class="field field-required">
+            <label for="fg-usuario">Usuario</label>
+            <input type="text" id="fg-usuario" autocomplete="username" placeholder="Tu usuario">
+          </div>
+          <div id="fg1-error" style="display:none;background:var(--red-soft);color:var(--red);font-size:12.5px;padding:9px 12px;border-radius:8px;margin-bottom:14px;"></div>
+          <button type="submit" class="btn btn-primary btn-block">Continuar</button>
+        </form>
+
+        <form id="forgot-step2-form" novalidate style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--paper-border);">
+          <p class="sub" style="margin-top:0;font-weight:600;color:var(--text-900);" id="fg-pregunta-texto"></p>
+          <div class="field field-required">
+            <label for="fg-respuesta">Tu respuesta</label>
+            <input type="text" id="fg-respuesta" autocomplete="off">
+          </div>
+          <div class="field field-required">
+            <label for="fg-nueva">Nueva contraseña</label>
+            <input type="password" id="fg-nueva" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+          </div>
+          <div class="field field-required">
+            <label for="fg-confirmar">Confirmar nueva contraseña</label>
+            <input type="password" id="fg-confirmar" autocomplete="new-password">
+          </div>
+          <div id="fg2-error" style="display:none;background:var(--red-soft);color:var(--red);font-size:12.5px;padding:9px 12px;border-radius:8px;margin-bottom:14px;"></div>
+          <div id="fg2-success" style="display:none;background:var(--green-soft);color:var(--green);font-size:12.5px;padding:9px 12px;border-radius:8px;margin-bottom:14px;"></div>
+          <button type="submit" class="btn btn-accent btn-block" id="btn-fg2-submit">Restablecer contraseña</button>
+        </form>
+
+        <div class="demo-users">
+          <b>Acceso</b><br>
+          Ingresa con el usuario y contraseña que te fueron asignados por tu Supervisor.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
