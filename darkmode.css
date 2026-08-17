@@ -1,0 +1,53 @@
+/* ============================================================
+   darkmode.css — Ajustes puntuales sobre el tema oscuro
+   (La mayoría del modo oscuro se resuelve con variables CSS
+   en style.css a través de la clase body.dark; aquí sólo van
+   los ajustes que las variables no cubren)
+   ============================================================ */
+
+body.dark .brand-mark,
+body.dark .login-side .lg-mark{
+  box-shadow:0 0 0 1px rgba(255,255,255,.08);
+}
+
+body.dark .icon-btn,
+body.dark .btn-ghost{
+  background:var(--paper-100);
+}
+
+body.dark .kpi-card,
+body.dark .card,
+body.dark .evidence-item,
+body.dark .versus-col textarea,
+body.dark .field input,
+body.dark .field select,
+body.dark .field textarea{
+  background:var(--paper-100);
+}
+
+body.dark .data-table tbody tr:hover{
+  background:var(--paper-200);
+}
+
+body.dark .modal-backdrop{
+  background:rgba(0,0,0,.65);
+}
+
+body.dark .skeleton{
+  background:linear-gradient(90deg,var(--ink-700) 25%,var(--ink-border) 37%,var(--ink-700) 63%);
+  background-size:400% 100%;
+}
+
+body.dark .login-form-side{
+  background:var(--paper-0);
+}
+
+body.dark ::selection{
+  color:#fff;
+}
+
+/* Toggle visual de modo oscuro dentro del icon-btn */
+.theme-toggle .ico-sun{display:none;}
+.theme-toggle .ico-moon{display:block;}
+body.dark .theme-toggle .ico-sun{display:block;}
+body.dark .theme-toggle .ico-moon{display:none;}
