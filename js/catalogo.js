@@ -5,8 +5,13 @@
 let CAT_PENDIENTE = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const user = await App.mount({ active: 'catalogo', title: 'Catálogo de REP', allowedRoles: ['Supervisor'] });
+  const user = await App.mount({ active: 'catalogo', title: 'Catálogo de REP' });
   if (!user) return;
+
+  const hint = document.getElementById('catalogo-scope-hint');
+  hint.textContent = user.rol === 'Supervisor'
+    ? 'Estás viendo el catálogo combinado de todos los gestores.'
+    : 'Este es tu catálogo personal — solo tú lo ves y lo administras.';
 
   await renderTabla();
 
@@ -34,11 +39,11 @@ async function renderTabla() {
       <td>${Utils.escapeHtml(r.pdActual || '—')}</td>
       <td>${Utils.escapeHtml(r.saldoLocal || '—')}</td>
       <td>${Utils.formatDate(r.actualizado)}</td>
-      <td><button class="btn btn-ghost btn-sm" data-del="${Utils.escapeHtml(r.codigoRep)}">Eliminar</button></td>
+      <td><button class="btn btn-ghost btn-sm" data-del="${Utils.escapeHtml(r.id)}" data-codigo="${Utils.escapeHtml(r.codigoRep)}">Eliminar</button></td>
     </tr>`).join('');
 
   tbody.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => {
-    const ok = await Utils.confirmDialog({ title: 'Eliminar registro', message: `¿Quitar "${btn.dataset.del}" del catálogo?`, confirmText: 'Eliminar', danger: true });
+    const ok = await Utils.confirmDialog({ title: 'Eliminar registro', message: `¿Quitar "${btn.dataset.codigo}" del catálogo?`, confirmText: 'Eliminar', danger: true });
     if (!ok) return;
     await Storage.CatalogoRep.eliminar(btn.dataset.del);
     Utils.toast('Registro eliminado', 'success');

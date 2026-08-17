@@ -325,10 +325,15 @@ async function handleCreateCase(e) {
     versionRepresentante: '', versionEBA: '', observaciones: '', analisis: '', conclusion: '', accionTomada: ''
   };
 
-  const nuevo = await Storage.Casos.create(data, CURRENT_USER);
-  Utils.closeModal('modal-case-backdrop');
-  Utils.toast(`Caso ${nuevo.numero} creado correctamente`, 'success');
-  setTimeout(() => window.location.href = `detalle-caso.html?id=${nuevo.id}`, 500);
+  const btnCrear = document.querySelector('#modal-case-backdrop .btn-accent[type="submit"], #modal-case-backdrop button[type="submit"]');
+  try {
+    const nuevo = await Storage.Casos.create(data, CURRENT_USER);
+    Utils.closeModal('modal-case-backdrop');
+    Utils.toast(`Caso ${nuevo.numero} creado correctamente`, 'success');
+    setTimeout(() => window.location.href = `detalle-caso.html?id=${nuevo.id}`, 500);
+  } catch (err) {
+    Utils.toast(`No se pudo crear el caso: ${err.message || err}`, 'error');
+  }
 }
 
 /* ============================================================
@@ -379,11 +384,11 @@ async function initDetailPage() {
 
   document.querySelector('.breadcrumbs').innerHTML = `<a href="casos.html" style="color:var(--text-400);">Casos</a> <span style="margin:0 4px;color:var(--text-400);">/</span> <b>${Utils.escapeHtml(CURRENT_CASO.numero)}</b>`;
 
-  const canEdit = CURRENT_USER.rol === 'Supervisor' || CURRENT_CASO.creadoPor === CURRENT_USER.id;
+  const canEdit = CURRENT_USER.rol === 'Supervisor' || (CURRENT_CASO.creadoPor === CURRENT_USER.id && CURRENT_CASO.estado !== 'Cerrado');
   const isSupervisor = CURRENT_USER.rol === 'Supervisor';
 
   renderDetailHeader(canEdit, isSupervisor);
-  renderGeneralTab(canEdit);
+  renderGeneralTab(canEdit, isSupervisor);
   renderComparativaTab(canEdit);
   renderEvidenciasTab(canEdit);
   renderNotasTab(canEdit);
@@ -446,35 +451,64 @@ function renderDetailHeader(canEdit, isSupervisor) {
     ${c.archivado ? `<div class="card card-pad" style="margin-top:14px;background:var(--grey-soft);border:none;"><span class="text-sm text-muted">Este caso está <b>archivado</b>. Sigue disponible aquí y en las exportaciones, pero no aparece en el listado activo de Casos.</span></div>` : ''}`;
 }
 
-function renderGeneralTab(canEdit) {
+function renderGeneralTab(canEdit, isSupervisor) {
   const c = CURRENT_CASO;
   const row = (label, val) => `<div class="field"><label>${label}</label><div style="padding:9px 0;font-size:13.5px;font-weight:600;">${Utils.escapeHtml(val || '—')}</div></div>`;
+  const editable = (label, name, val, type = 'text') => `<div class="field"><label>${label}</label><input type="${type}" name="${name}" value="${Utils.escapeHtml(val || '')}"></div>`;
   const telefonos = (c.telefonosAdicionales || []);
+
   document.getElementById('tab-general').innerHTML = `
-    <div class="grid-2">
-      <div class="card card-pad">
-        <div class="panel-title">Información general</div>
-        <div class="grid-2">
-          ${row('Saldo pendiente', c.saldoPendiente ? `${c.moneda?.simbolo || 'Q'} ${c.saldoPendiente}` : '—')}${row('Zona', c.zona)}
-          ${row('Gerente de zona', c.gerenteZona)}
-          ${row('Teléfono de gerente de zona', c.telefonoGerenteZona)}${row('Código REP', c.codigoEBA)}
-          ${row('PD Actual', c.pdActual ? c.pdActual + ' días' : '—')}${row('Campaña', c.campaña)}
-          ${row('Sector', c.sector)}${row('Fecha de contacto', Utils.formatDate(c.fechaContacto))}
-          ${row('Teléfono REP', c.telefonoEBA)}
+    <form id="general-form">
+      <div class="grid-2">
+        <div class="card card-pad">
+          <div class="panel-title">Información general ${isSupervisor ? '<span class="text-muted text-sm" style="font-weight:400;">— editable por Supervisor</span>' : ''}</div>
+          <div class="grid-2">
+            ${isSupervisor ? editable('Saldo pendiente', 'saldoPendiente', c.saldoPendiente, 'number') : row('Saldo pendiente', c.saldoPendiente ? `${c.moneda?.simbolo || 'Q'} ${c.saldoPendiente}` : '—')}
+            ${isSupervisor ? editable('Zona', 'zona', c.zona) : row('Zona', c.zona)}
+            ${isSupervisor ? editable('Gerente de zona', 'gerenteZona', c.gerenteZona) : row('Gerente de zona', c.gerenteZona)}
+            ${isSupervisor ? editable('Teléfono de gerente de zona', 'telefonoGerenteZona', c.telefonoGerenteZona) : row('Teléfono de gerente de zona', c.telefonoGerenteZona)}
+            ${row('Código REP', c.codigoEBA)}
+            ${isSupervisor ? editable('PD Actual', 'pdActual', c.pdActual, 'number') : row('PD Actual', c.pdActual ? c.pdActual + ' días' : '—')}
+            ${isSupervisor ? editable('Campaña', 'campaña', c.campaña) : row('Campaña', c.campaña)}
+            ${isSupervisor ? editable('Sector', 'sector', c.sector) : row('Sector', c.sector)}
+            ${isSupervisor ? editable('Fecha de contacto', 'fechaContacto', c.fechaContacto, 'date') : row('Fecha de contacto', Utils.formatDate(c.fechaContacto))}
+            ${isSupervisor ? editable('Teléfono REP', 'telefonoEBA', c.telefonoEBA) : row('Teléfono REP', c.telefonoEBA)}
+          </div>
+          <div class="field"><label>Números de contacto adicionales</label>
+            ${telefonos.length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:4px;">${telefonos.map(t => `<span class="chip">${Utils.escapeHtml(t)}</span>`).join('')}</div>` : `<div style="padding:9px 0;font-size:13.5px;color:var(--text-400);">—</div>`}
+          </div>
         </div>
-        <div class="field"><label>Números de contacto adicionales</label>
-          ${telefonos.length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:4px;">${telefonos.map(t => `<span class="chip">${Utils.escapeHtml(t)}</span>`).join('')}</div>` : `<div style="padding:9px 0;font-size:13.5px;color:var(--text-400);">—</div>`}
+        <div class="card card-pad">
+          <div class="panel-title">Información administrativa</div>
+          <div class="grid-2">
+            ${row('Estado', c.estado)}${row('Prioridad', c.prioridad)}
+            ${row('Usuario creador', c.usuarioCreador)}${row('Fecha de creación', Utils.formatDateTime(c.fechaCreacion))}
+            ${row('Última modificación', Utils.formatDateTime(c.ultimaModificacion))}${row('Fecha de cierre', c.fechaCierre ? Utils.formatDateTime(c.fechaCierre) : '—')}
+          </div>
         </div>
       </div>
-      <div class="card card-pad">
-        <div class="panel-title">Información administrativa</div>
-        <div class="grid-2">
-          ${row('Estado', c.estado)}${row('Prioridad', c.prioridad)}
-          ${row('Usuario creador', c.usuarioCreador)}${row('Fecha de creación', Utils.formatDateTime(c.fechaCreacion))}
-          ${row('Última modificación', Utils.formatDateTime(c.ultimaModificacion))}${row('Fecha de cierre', c.fechaCierre ? Utils.formatDateTime(c.fechaCierre) : '—')}
-        </div>
-      </div>
-    </div>`;
+      ${isSupervisor ? `<button type="submit" class="btn btn-accent" style="margin-top:16px;">Guardar información</button>` : ''}
+    </form>`;
+
+  if (isSupervisor) {
+    document.getElementById('general-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const data = {
+        saldoPendiente: f.saldoPendiente.value.trim(), zona: f.zona.value.trim(), gerenteZona: f.gerenteZona.value.trim(),
+        telefonoGerenteZona: f.telefonoGerenteZona.value.trim(), pdActual: f.pdActual.value.trim(),
+        campaña: f.campaña.value.trim(), sector: f.sector.value.trim(), fechaContacto: f.fechaContacto.value,
+        telefonoEBA: f.telefonoEBA.value.trim()
+      };
+      try {
+        CURRENT_CASO = await Storage.Casos.update(CURRENT_CASO.id, data, CURRENT_USER, { timelineNote: 'Información general/administrativa editada por un Supervisor' });
+        Utils.toast('Información actualizada', 'success');
+        renderTimelineTab();
+      } catch (err) {
+        Utils.toast(`No se pudo guardar: ${err.message || err}`, 'error');
+      }
+    });
+  }
 }
 
 function renderComparativaTab(canEdit) {
@@ -502,7 +536,7 @@ function renderComparativaTab(canEdit) {
         <textarea name="comentarioGerenteDivision" ${dis} placeholder="Escribe aquí la observación del gerente de división…">${Utils.escapeHtml(c.comentarioGerenteDivision)}</textarea>
       </div>
 
-      ${canEdit ? `<button type="submit" class="btn btn-accent">Guardar comparativa</button>` : `<p class="text-muted text-sm">Sólo el creador del caso o un supervisor pueden editar esta sección.</p>`}
+      ${canEdit ? `<button type="submit" class="btn btn-accent">Guardar comparativa</button>` : `<p class="text-muted text-sm">${c.estado === 'Cerrado' ? 'Este caso está cerrado — solo un Supervisor puede editarlo.' : 'Sólo el creador del caso o un supervisor pueden editar esta sección.'}</p>`}
     </form>`;
 
   if (canEdit) {
@@ -553,7 +587,7 @@ function renderAnalisisTab(canEdit) {
         <div class="field field-required"><label>Conclusión</label><textarea name="conclusion" ${dis} style="min-height:80px;">${Utils.escapeHtml(c.conclusion)}</textarea><div class="err-msg">Este campo es obligatorio.</div></div>
         <div class="field field-required"><label>Acción tomada</label><textarea name="accionTomada" ${dis} style="min-height:80px;">${Utils.escapeHtml(c.accionTomada)}</textarea><div class="err-msg">Este campo es obligatorio.</div></div>
       </div>
-      ${canEdit ? `<button type="submit" class="btn btn-accent">Guardar análisis</button>` : `<p class="text-muted text-sm">Sólo el creador del caso o un supervisor pueden editar esta sección.</p>`}
+      ${canEdit ? `<button type="submit" class="btn btn-accent">Guardar análisis</button>` : `<p class="text-muted text-sm">${c.estado === 'Cerrado' ? 'Este caso está cerrado — solo un Supervisor puede editarlo.' : 'Sólo el creador del caso o un supervisor pueden editar esta sección.'}</p>`}
     </form>`;
 
   if (canEdit) {
@@ -801,7 +835,7 @@ function bindDetailActions(canEdit, isSupervisor) {
 
 function refreshDetailAfterChange(canEdit, isSupervisor) {
   renderDetailHeader(canEdit, isSupervisor);
-  renderGeneralTab(canEdit);
+  renderGeneralTab(canEdit, isSupervisor);
   renderTimelineTab();
   bindDetailActions(canEdit, isSupervisor);
 }
@@ -833,7 +867,7 @@ async function handleCloseCase(e) {
   );
   Utils.closeModal('modal-close-backdrop');
   Utils.toast(`${CURRENT_CASO.numero} cerrado correctamente`, 'success');
-  const canEdit = CURRENT_USER.rol === 'Supervisor' || CURRENT_CASO.creadoPor === CURRENT_USER.id;
+  const canEdit = CURRENT_USER.rol === 'Supervisor' || (CURRENT_CASO.creadoPor === CURRENT_USER.id && CURRENT_CASO.estado !== 'Cerrado');
   renderAnalisisTab(canEdit);
   refreshDetailAfterChange(canEdit, true);
 }
@@ -849,6 +883,6 @@ async function handleArchiveCase() {
   if (!ok) return;
   CURRENT_CASO = await Storage.Casos.archive(CURRENT_CASO.id, CURRENT_USER);
   Utils.toast(`${CURRENT_CASO.numero} archivado`, 'success');
-  const canEdit = CURRENT_USER.rol === 'Supervisor' || CURRENT_CASO.creadoPor === CURRENT_USER.id;
+  const canEdit = CURRENT_USER.rol === 'Supervisor' || (CURRENT_CASO.creadoPor === CURRENT_USER.id && CURRENT_CASO.estado !== 'Cerrado');
   refreshDetailAfterChange(canEdit, true);
 }

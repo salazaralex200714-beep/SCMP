@@ -12,15 +12,15 @@ const App = (() => {
         { id: 'dashboard', label: 'Dashboard', href: 'dashboard.html', roles: ['Supervisor', 'Agente'],
           icon: '<path d="M3 13h8V3H3v10Zm10 8h8V11h-8v10ZM3 21h8v-6H3v6ZM13 3v6h8V3h-8Z"/>' },
         { id: 'casos', label: 'Casos', href: 'casos.html', roles: ['Supervisor', 'Agente'],
-          icon: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>' }
+          icon: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>' },
+        { id: 'catalogo', label: 'Catálogo de REP', href: 'catalogo.html', roles: ['Supervisor', 'Agente'],
+          icon: '<rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/>' }
       ]
     },
     {
       group: 'Administración', items: [
         { id: 'usuarios', label: 'Usuarios', href: 'usuarios.html', roles: ['Supervisor'],
           icon: '<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.5 13.2c2.9.4 5 2.2 5.9 6.8h-3.4"/>' },
-        { id: 'catalogo', label: 'Catálogo de REP', href: 'catalogo.html', roles: ['Supervisor'],
-          icon: '<rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/>' },
         { id: 'auditoria', label: 'Auditoría', href: 'auditoria.html', roles: ['Supervisor'],
           icon: '<path d="M9 12h6M9 16h6M9 8h2"/><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/>' }
       ]
@@ -153,6 +153,15 @@ const App = (() => {
     initShellEvents(user);
     return user;
   }
+
+  // Red de seguridad: si algo falla en cualquier parte del sistema sin que
+  // el propio código lo capture, esto evita que quede en silencio.
+  window.addEventListener('unhandledrejection', (e) => {
+    console.error('Error no manejado:', e.reason);
+    if (typeof Utils !== 'undefined' && Utils.toast) {
+      Utils.toast(`Ocurrió un error inesperado: ${e.reason?.message || e.reason}`, 'error');
+    }
+  });
 
   return { mount, guard, currentUser };
 })();

@@ -306,38 +306,42 @@ const Storage = (() => {
   const CatalogoRep = {
     async buscar(codigo) {
       if (!codigo) return null;
-      const { data } = await sb.from('catalogo_rep').select('*').ilike('codigo_rep', codigo.trim()).maybeSingle();
-      if (!data) return null;
+      const { data } = await sb.from('catalogo_rep').select('*').ilike('codigo_rep', codigo.trim()).limit(1);
+      const fila = data && data[0];
+      if (!fila) return null;
       return {
-        codigoRep: data.codigo_rep, zona: data.zona, gerenteZona: data.gerente_zona, telefonoRep: data.telefono_rep,
-        sector: data.sector, pdActual: data.pd_actual, saldoLocal: data.saldo_local, nombreRep: data.nombre_rep,
-        telefonoGerenteZona: data.telefono_gerente_zona, campaña: data.campana
+        codigoRep: fila.codigo_rep, zona: fila.zona, gerenteZona: fila.gerente_zona, telefonoRep: fila.telefono_rep,
+        sector: fila.sector, pdActual: fila.pd_actual, saldoLocal: fila.saldo_local, nombreRep: fila.nombre_rep,
+        telefonoGerenteZona: fila.telefono_gerente_zona, campaña: fila.campana
       };
     },
     async getAll() {
       const { data } = await sb.from('catalogo_rep').select('*').order('codigo_rep', { ascending: true });
       return (data || []).map(d => ({
-        codigoRep: d.codigo_rep, zona: d.zona, gerenteZona: d.gerente_zona, telefonoRep: d.telefono_rep,
+        id: d.id, codigoRep: d.codigo_rep, zona: d.zona, gerenteZona: d.gerente_zona, telefonoRep: d.telefono_rep,
         sector: d.sector, pdActual: d.pd_actual, saldoLocal: d.saldo_local, nombreRep: d.nombre_rep,
         telefonoGerenteZona: d.telefono_gerente_zona, campaña: d.campana, actualizado: d.actualizado_en
       }));
     },
     async upsertMuchos(filas) {
       // filas: [{ codigoRep, zona, gerenteZona, telefonoRep, sector, pdActual, saldoLocal, nombreRep, telefonoGerenteZona, campaña }, ...]
+      const { data: sess } = await sb.auth.getSession();
+      const miId = sess?.session?.user?.id;
       const payload = filas.filter(f => f.codigoRep).map(f => ({
         codigo_rep: String(f.codigoRep).trim(), zona: f.zona || null, gerente_zona: f.gerenteZona || null,
         telefono_rep: f.telefonoRep || null, sector: f.sector || null, pd_actual: f.pdActual || null,
         saldo_local: f.saldoLocal || null, nombre_rep: f.nombreRep || null,
-        telefono_gerente_zona: f.telefonoGerenteZona || null, campana: f.campaña || null, actualizado_en: new Date().toISOString()
+        telefono_gerente_zona: f.telefonoGerenteZona || null, campana: f.campaña || null,
+        creado_por: miId, actualizado_en: new Date().toISOString()
       }));
       if (!payload.length) return 0;
-      const { error } = await sb.from('catalogo_rep').upsert(payload, { onConflict: 'codigo_rep' });
+      const { error } = await sb.from('catalogo_rep').upsert(payload, { onConflict: 'codigo_rep,creado_por' });
       if (error) throw error;
       await Auditoria.log({ tipo: 'catalogo', accion: `Catálogo de REP actualizado: ${payload.length} registro(s)` });
       return payload.length;
     },
-    async eliminar(codigo) {
-      const { error } = await sb.from('catalogo_rep').delete().eq('codigo_rep', codigo);
+    async eliminar(id) {
+      const { error } = await sb.from('catalogo_rep').delete().eq('id', id);
       if (error) throw error;
       return true;
     }

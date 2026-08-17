@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="css/darkmode.css">
 </head>
 <body>
+<script>if(localStorage.getItem("scmp_theme")==="dark")document.body.classList.add("dark");</script>
 
   <div class="app-shell">
     <aside class="sidebar" id="sidebar"></aside>
@@ -19,6 +20,7 @@
       <div class="content fade-in">
         <h1 class="page-title">Catálogo de REP</h1>
         <p class="page-sub">Sube un Excel con los datos de cada representante — al crear un caso, con solo escribir el código se completan zona, gerente de zona y teléfono automáticamente.</p>
+        <p class="page-sub" id="catalogo-scope-hint" style="margin-top:2px;"></p>
 
         <div class="card card-pad" style="margin:18px 0;">
           <div class="panel-title">Importar desde Excel</div>
