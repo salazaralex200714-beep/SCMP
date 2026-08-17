@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi cuenta · S.C.M.P.</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/darkmode.css">
+</head>
+<body>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+
+      <div class="content fade-in" style="max-width:640px;">
+        <h1 class="page-title">Mi cuenta</h1>
+        <p class="page-sub">Tus datos y tu contraseña de acceso.</p>
+
+        <div class="card card-pad" style="margin:20px 0;">
+          <div class="panel-title">Mis datos</div>
+          <div class="grid-2" id="mis-datos"></div>
+        </div>
+
+        <div class="card card-pad">
+          <div class="panel-title">Cambiar mi contraseña</div>
+          <form id="mi-password-form">
+            <div class="field field-required">
+              <label>Contraseña actual</label>
+              <input type="password" name="actual" autocomplete="current-password">
+            </div>
+            <div class="field field-required">
+              <label>Nueva contraseña</label>
+              <input type="password" name="nueva" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+            </div>
+            <div class="field field-required">
+              <label>Confirmar nueva contraseña</label>
+              <input type="password" name="confirmar" autocomplete="new-password">
+            </div>
+            <div id="mp-error" style="display:none;background:var(--red-soft);color:var(--red);font-size:12.5px;padding:9px 12px;border-radius:8px;margin-bottom:14px;"></div>
+            <button type="submit" class="btn btn-accent">Actualizar contraseña</button>
+          </form>
+        </div>
+
+        <div class="card card-pad" style="margin-top:20px;">
+          <div class="panel-title">Pregunta de seguridad</div>
+          <p class="text-sm text-muted" style="margin-top:0;">Configúrala una sola vez — te va a servir para recuperar tu contraseña tú mismo/a desde la pantalla de inicio de sesión, sin depender de tu Supervisor, en caso de que la olvides.</p>
+          <form id="pregunta-seguridad-form">
+            <div class="field field-required">
+              <label>Elige una pregunta</label>
+              <select name="pregunta" id="ps-pregunta-select">
+                <option value="¿Cuál es el nombre de tu mascota?">¿Cuál es el nombre de tu mascota?</option>
+                <option value="¿Cuál es tu comida favorita?">¿Cuál es tu comida favorita?</option>
+                <option value="¿En qué ciudad naciste?">¿En qué ciudad naciste?</option>
+                <option value="¿Cuál es el segundo nombre de tu mamá?">¿Cuál es el segundo nombre de tu mamá?</option>
+                <option value="otra">Otra (la escribo yo)</option>
+              </select>
+            </div>
+            <div class="field field-required" id="ps-pregunta-custom-box" style="display:none;">
+              <label>Escribe tu pregunta</label>
+              <input type="text" id="ps-pregunta-custom">
+            </div>
+            <div class="field field-required">
+              <label>Tu respuesta</label>
+              <input type="text" name="respuesta" autocomplete="off" placeholder="Recuérdala bien, la vas a necesitar">
+            </div>
+            <div id="ps-error" style="display:none;background:var(--red-soft);color:var(--red);font-size:12.5px;padding:9px 12px;border-radius:8px;margin-bottom:14px;"></div>
+            <button type="submit" class="btn btn-primary">Guardar pregunta de seguridad</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/mi-cuenta.js"></script>
+</body>
+</html>
