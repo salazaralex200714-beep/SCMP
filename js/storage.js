@@ -151,9 +151,19 @@ const Storage = (() => {
 
   // ================= CASOS =================
   async function nextCaseNumber() {
-    const { data } = await sb.from('casos').select('numero').order('numero', { ascending: false }).limit(1);
-    const ultimo = data && data[0] ? parseInt((data[0].numero || '').replace('SCMP-', ''), 10) : 0;
-    return `SCMP-${String((isNaN(ultimo) ? 0 : ultimo) + 1).padStart(4, '0')}`;
+    // Usamos .select('*', { count: 'exact', head: true }) para contar todos los registros 
+    // de la tabla sin importar quién esté logueado, evitando restricciones de RLS para el conteo.
+    const { count, error } = await sb
+      .from('casos')
+      .select('*', { count: 'exact', head: true });
+
+    if (error || count === null) {
+      return 'SCMP-0001';
+    }
+
+    // El siguiente número será el total de casos en la base de datos + 1
+    const siguiente = count + 1;
+    return `SCMP-${String(siguiente).padStart(4, '0')}`;
   }
 
   const Casos = {
